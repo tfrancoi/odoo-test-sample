@@ -1,0 +1,39 @@
+<odoo>
+    <record model="res.partner" id="worker_1">
+        <field name="name">worker 1</field>
+    </record>
+    
+    <record model="res.partner" id="worker_2">
+        <field name="name">worker 2</field>
+    </record>
+    
+    <record model="res.partner" id="worker_3">
+        <field name="name">worker 3</field>
+    </record>
+
+    <record model="shift.daynumber" id="day_monday">
+        <field name="number">1</field>
+        <field name="name">Monday</field>
+    </record>
+
+    <record model="shift.daynumber" id="day_tuesday">
+        <field name="number">2</field>
+        <field name="name">Tuesday</field>
+    </record>
+
+    <record model="shift.planning" id="planning_demo">
+        <field name="name">Planning Demo</field>
+    </record>
+
+    <record model="shift.template" id="template_demo1">
+        <field name="name">Demo Task</field>
+        <field name="planning_id" ref="planning_demo" />
+        <field name="day_nb_id" ref="day_tuesday" />
+        <field name="start_time">7.5</field>
+        <field name="end_time" >10.5</field>
+        <field name="duration">3</field>
+        <field name="worker_nb">5</field>
+        <field name="super_coop_id" ref="base.user_demo" />
+        <field name="worker_ids" eval="[(6,0, [ref('worker_1'), ref('worker_2'), ref('worker_3')])]" />
+    </record>
+</odoo>
