@@ -60,7 +60,7 @@ class UnitTestCase(TransactionCase):
             type(my_mock()).ids = PropertyMock(return_value=[1,2,3,4])
             generation_plannig_wizard_id = self.env['shift.generate_planning'].new()
             res = generation_plannig_wizard_id.generate_task()
-            self.assertEqual(res['domain'],  [('id', 'in', [1, 2, 3, 4])], "Domain does not match")
+            self.assertEqual(res['domain'],  [('id', 'in', [1, 2, 3, 5])], "Domain does not match")
             my_mock.assert_called_with()
  
     def test_shift_generation_context(self):
