@@ -1,5 +1,6 @@
 from odoo.tests.common import TransactionCase
 from unittest.mock import PropertyMock, patch
+from datetime import datetime
 
 
 class BadTestCase(TransactionCase):
@@ -60,7 +61,7 @@ class UnitTestCase(TransactionCase):
             type(my_mock()).ids = PropertyMock(return_value=[1,2,3,4])
             generation_plannig_wizard_id = self.env['shift.generate_planning'].new()
             res = generation_plannig_wizard_id.generate_task()
-            self.assertEqual(res['domain'],  [('id', 'in', [1, 2, 3, 5])], "Domain does not match")
+            self.assertEqual(res['domain'],  [('id', 'in', [1, 2, 3, 4])], "Domain does not match")
             my_mock.assert_called_with()
  
     def test_shift_generation_context(self):
@@ -74,20 +75,28 @@ class UnitTestCase(TransactionCase):
         tasks = self.task_template._generate_task_day()
         self.assertEqual(len(tasks), 5, "Number of task generated is not correct")
          
-#     def test_task_generation_copy(self):
-#         """ Check that value is correctly copy from the template """
-#         with patch("odoo.addons.shift_management.models.planning.TaskTemplate._get_datetime_timezone", 
-#                    return_value=('2017-01-01 10:00:00', '2017-01-01 13:00:00')):
-#              
-#             tasks = self.task_template ._generate_task_day()
-#             for t in tasks:
-#                 self.assertEqual(t.task_template_id, self.task_template , "Task Template is wrong")
-#                 self.assertEqual(t.start_time, self.task_template .start_date, "Start Time is wrong")
-#                 self.assertEqual(t.end_time, self.task_template .end_date, "End Time is wrong")
-#                 self.assertEqual(t.super_coop_id, self.task_template .super_coop_id, "Super Coop is wrong")
-#                 self.assertEqual(t.stage_id, self.draft_stage, "Stage should be draft")
+    def test_task_generation_copy(self):
+        """ Check that value is correctly copy from the template """
+        with patch("odoo.addons.shift_management.models.planning.TaskTemplate._get_datetime_timezone", 
+                   return_value=('2017-01-01 10:00:00', '2017-01-01 13:00:00')):
+              
+            tasks = self.task_template ._generate_task_day()
+            for t in tasks:
+                self.assertEqual(t.task_template_id, self.task_template , "Task Template is wrong")
+                self.assertEqual(t.start_time, self.task_template .start_date, "Start Time is wrong")
+                self.assertEqual(t.end_time, self.task_template .end_date, "End Time is wrong")
+                self.assertEqual(t.super_coop_id, self.task_template .super_coop_id, "Super Coop is wrong")
+                self.assertEqual(t.stage_id, self.draft_stage, "Stage should be draft")
         #Change the code to make it easier to patch
         #Now we know that start time is copied properly we can check it
+    
+    def test_date_computation(self):
+        """ Test date computation """
+        self.env.user.tz = 'Europe/Brussels'
+        today = datetime.strptime("2017-10-02", "%Y-%m-%d")
+        start_date, end_date = self.env['shift.template']._get_datetime_timezone(today, 4, 9.0, 11.5)
+        self.assertTrue(start_date, datetime(2017, 10, 5, 7))
+        self.assertTrue(end_date, datetime(2017, 10, 5, 9, 30))
  
     def test_task_assignation(self):
         """ Check that regular worker are assign Properly """

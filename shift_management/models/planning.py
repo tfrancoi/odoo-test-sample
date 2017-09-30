@@ -70,20 +70,15 @@ class TaskTemplate(models.Model):
     def _get_fake_date(self):
         today = datetime.strptime(self._context.get('visualize_date'), '%Y-%m-%d') if self._context.get('visualize_date') else get_first_day_of_week()
         for rec in self:
-            day = today + timedelta(days=rec.day_nb_id.number - 1)
-            h_begin, m_begin = floatime_to_hour_minute(rec.start_time)
-            h_end, m_end = floatime_to_hour_minute(rec.end_time)
-            rec.start_date = fields.Datetime.context_timestamp(self, day).replace(hour=h_begin, minute=m_begin, second=0).astimezone(UTC)
-            rec.end_date = fields.Datetime.context_timestamp(self, day).replace(hour=h_end, minute=m_end, second=0).astimezone(UTC)
-#             rec.start_date, rec.end_date = self._get_datetime_timezone(today, rec.day_nb_id.number, rec.start_time, rec.end_time)
+            rec.start_date, rec.end_date = self._get_datetime_timezone(today, rec.day_nb_id.number, rec.start_time, rec.end_time)
 
-#     def _get_datetime_timezone(self, today, day_number, start_time, end_time):
-#         day = today + timedelta(days=day_number - 1)
-#         h_begin, m_begin = floatime_to_hour_minute(start_time)
-#         h_end, m_end = floatime_to_hour_minute(end_time)
-#         start_date = fields.Datetime.context_timestamp(self, day).replace(hour=h_begin, minute=m_begin, second=0).astimezone(UTC)
-#         end_date = fields.Datetime.context_timestamp(self, day).replace(hour=h_end, minute=m_end, second=0).astimezone(UTC)
-#         return start_date, end_date
+    def _get_datetime_timezone(self, today, day_number, start_time, end_time):
+        day = today + timedelta(days=day_number - 1)
+        h_begin, m_begin = floatime_to_hour_minute(start_time)
+        h_end, m_end = floatime_to_hour_minute(end_time)
+        start_date = fields.Datetime.context_timestamp(self, day).replace(hour=h_begin, minute=m_begin, second=0).astimezone(UTC)
+        end_date = fields.Datetime.context_timestamp(self, day).replace(hour=h_end, minute=m_end, second=0).astimezone(UTC)
+        return start_date, end_date
 
     def _dummy_search(self, operator, value):
         return []
@@ -118,7 +113,7 @@ class TaskTemplate(models.Model):
     def _generate_task_day(self):
         tasks = self.env['shift.shift']
         for rec in self:
-            for i in xrange(0, rec.worker_nb):
+            for i in range(0, rec.worker_nb):
                 worker_id = rec.worker_ids[i].id if len(rec.worker_ids) > i else False
                 tasks |= tasks.create({
                     'name' :  "%s %s (%s - %s) [%s]" % (rec.name, rec.day_nb_id.name, float_to_time(rec.start_time), float_to_time(rec.end_time), i),
